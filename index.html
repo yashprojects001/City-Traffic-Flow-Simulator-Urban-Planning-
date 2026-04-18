@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>City Traffic Simulator</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: #0f172a;
+    color: white;
+    text-align: center;
+}
+
+/* Header */
+h1 {
+    margin: 10px;
+}
+
+/* Road container */
+#road {
+    position: relative;
+    width: 90%;
+    height: 300px;
+    margin: auto;
+    background: #1e293b;
+    border: 4px solid #334155;
+    overflow: hidden;
+}
+
+/* Lane */
+.lane {
+    position: absolute;
+    width: 100%;
+    height: 50%;
+    border-top: 2px dashed white;
+}
+
+.top { top: 0; }
+.bottom { bottom: 0; }
+
+/* Cars */
+.car {
+    width: 40px;
+    height: 20px;
+    background: red;
+    position: absolute;
+    border-radius: 4px;
+}
+
+/* Signal */
+.signal {
+    width: 20px;
+    height: 60px;
+    background: black;
+    position: absolute;
+    top: 120px;
+    left: 50%;
+}
+
+.light {
+    width: 15px;
+    height: 15px;
+    margin: 3px auto;
+    border-radius: 50%;
+    background: gray;
+}
+
+.red { background: red; }
+.green { background: lime; }
+
+/* Controls */
+.controls {
+    margin: 15px;
+}
+
+button {
+    padding: 10px;
+    margin: 5px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* Stats */
+.stats {
+    margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🚦 City Traffic Flow Simulator</h1>
+
+<div class="controls">
+    <button onclick="spawnCar()">🚗 Add Car</button>
+    <button onclick="setGreen()">🟢 Green Signal</button>
+    <button onclick="setRed()">🔴 Red Signal</button>
+</div>
+
+<div id="road">
+    <div class="lane top"></div>
+    <div class="lane bottom"></div>
+
+    <div class="signal">
+        <div id="redLight" class="light red"></div>
+        <div id="greenLight" class="light"></div>
+    </div>
+</div>
+
+<div class="stats">
+    🚗 Cars: <span id="count">0</span> |
+    🚦 Signal: <span id="signalState">RED</span> |
+    ⚡ Flow Rate: <span id="flow">0</span>
+</div>
+
+<script>
+
+/* ===== STATE ===== */
+let cars = [];
+let signal = "RED";
+let flow = 0;
+
+/* ===== SPAWN CAR ===== */
+function spawnCar() {
+    const car = document.createElement("div");
+    car.className = "car";
+    car.style.left = "0px";
+    car.style.top = Math.random() > 0.5 ? "40px" : "200px";
+
+    document.getElementById("road").appendChild(car);
+
+    cars.push({el: car, x: 0, speed: Math.random()*2+1});
+    updateStats();
+}
+
+/* ===== SIGNAL CONTROL ===== */
+function setGreen() {
+    signal = "GREEN";
+    document.getElementById("redLight").classList.remove("red");
+    document.getElementById("greenLight").classList.add("green");
+    document.getElementById("signalState").innerText = "GREEN";
+}
+
+function setRed() {
+    signal = "RED";
+    document.getElementById("greenLight").classList.remove("green");
+    document.getElementById("redLight").classList.add("red");
+    document.getElementById("signalState").innerText = "RED";
+}
+
+/* ===== SIMULATION LOOP ===== */
+setInterval(() => {
+    flow = 0;
+
+    cars.forEach(c => {
+        if (signal === "RED" && c.x > 400 && c.x < 500) {
+            // stop near signal
+        } else {
+            c.x += c.speed;
+            flow++;
+        }
+
+        c.el.style.left = c.x + "px";
+
+        if (c.x > window.innerWidth) {
+            c.el.remove();
+        }
+    });
+
+    updateStats();
+}, 50);
+
+/* ===== STATS ===== */
+function updateStats() {
+    document.getElementById("count").innerText = cars.length;
+    document.getElementById("flow").innerText = flow;
+}
+
+/* AUTO SPAWN */
+setInterval(spawnCar, 2000);
+
+</script>
+
+</body>
+</html>
